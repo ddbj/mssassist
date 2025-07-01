@@ -8,7 +8,7 @@ Takehide Kosuge
 1. Pull the repository and Create symbolic link
 ~~~
 w3const@a012
-git pull https://github.com/ddbj/mssassist.git ~/mssassist
+git clone https://github.com/ddbj/mssassist.git ~/mssassist
 cd ~/mssassist
 ln -s ddbj_autofix.sh ddbj_autofix
 ln -s ddbj_kaeru.sh ddbj_kaeru
