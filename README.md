@@ -5,7 +5,7 @@ I have taken Andrea-san mss fix tools, and will migrate them here.
 Takehide Kosuge
 
 # Installation
-1. Pull the repository and Create symbolic link
+1. Pull the repository from ddbj/mssassist.git and create symbolic link in the directory.
 ~~~
 w3const@a012
 git clone https://github.com/ddbj/mssassist.git ~/mssassist → see NOTE!
