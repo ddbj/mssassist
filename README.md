@@ -5,7 +5,7 @@ I have taken Andrea-san mss fix tools, and will migrate them here.
 Takehide Kosuge
 
 # Installation
-1. Ssh loogin to a012 as w3const user.
+1. Ssh login to a012 node as w3const user.
 1. Pull the repository from ddbj/mssassist.git.
     ~~~
     git clone https://github.com/ddbj/mssassist.git ~/mssassist
