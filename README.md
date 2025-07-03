@@ -29,12 +29,20 @@ Takehide Kosuge
    mkdir -m 750 .key
    And copy the ######.json file to .key/ directory, and then set the permission to 640.
    ~~~
-1. Finally, add the followings to cron@a012.
+1. Add the followings to cron@a012.
     ~~~
     # MSS ddbj_mss_validation
     0 8 * * *  bash /home/w3const/mssassist/update_taxdump.sh
     0,10,20,30,40,50 8-19 * * * bash /home/w3const/mssassist/update_tables.sh
     ~~~
+1. Prepare the singularity sif container required for running R/Python scripts stored in step#/ directories.
+   ~~~
+   # Login to ddbjs1 workstation or anohter appropriate server where users can build singularity containers.
+   # Execute the following command.
+   sudo singularity build sing-mssassist.sif ./Singularity
+   
+   # Upload the sing-mssassist.sif to /home/w3const/mssassist directory 
+   ~~~
 
 # How to use
 コマンド使用方法は、Confluenceの「MSS 査定; 新規登録の作業手順」ページを参照。
