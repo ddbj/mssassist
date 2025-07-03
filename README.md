@@ -6,12 +6,12 @@ Takehide Kosuge
 
 # Installation
 1. Ssh loogin to a012 as w3const user.
-1. Pull the repository from ddbj/mssassist.git and create symbolic link in the directory.
+1. Pull the repository from ddbj/mssassist.git.
     ~~~
     git clone https://github.com/ddbj/mssassist.git ~/mssassist
     ~~~
     Note! Do NOT change the destination directory for installing the mssassist. When you would like to change the directory name from 'mssassist',       you need to change the value of $BASE variable in each shell script.
-   
+1. Prepare the symbolic link in the directory.
     ~~~
     cd ~/mssassist
     ln -s ddbj_autofix.sh ddbj_autofix
@@ -19,12 +19,12 @@ Takehide Kosuge
     ln -s sing_ddbj_mss_validation.sh ddbj_mss_validation
     ln -s ddbj_sakura2DB.sh ddbj_sakura2DB
     ~~~
-1. Create 'tables' directory
+1. Create 'tables' directory.
     ~~~
     mkdir -m 775 tables
     ~~~
     Data files required to run MSS validation tools are prepared here.
-1. Add the followings to cron@a012
+1. Finally, add the followings to cron@a012.
     ~~~
     # MSS ddbj_mss_validation
     0 8 * * *  bash /home/w3const/mssassist/update_taxdump.sh
