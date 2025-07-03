@@ -28,7 +28,7 @@ Takehide Kosuge
     ~~~
     # MSS ddbj_mss_validation
     0 8 * * *  bash /home/w3const/mssassist/update_taxdump.sh
-    0 8,10,12,14,16,18 * * * bash /home/w3const/mssassist/update_tables.sh
+    0,10,20,30,40,50 8-19 * * * bash /home/w3const/mssassist/update_tables.sh
     ~~~
 
 # How to use
