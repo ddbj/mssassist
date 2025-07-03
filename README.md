@@ -24,11 +24,11 @@ Takehide Kosuge
     mkdir -m 775 tables
     ~~~
     Data files required to run MSS validation tools are prepared here.
-1. Put the keyfile to write MSSworking gsheet in .key directory.
+1. Put the JSON type API keyfile to write MSSworking gsheet in .key directory.
    ~~~
    mkdir -m 750 .key
    ~~~
-   And copy the json key file to .key/ directory, and then set the permission to 640.
+   And copy the ######.json file to .key/ directory, and then set the permission to 640.
 1. Finally, add the followings to cron@a012.
     ~~~
     # MSS ddbj_mss_validation
