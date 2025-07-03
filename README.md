@@ -24,8 +24,6 @@ w3const@a012:~/mssassist$ mkdir -m 775 tables
 ~~~
 Data files required to run MSS validation tools are prepared here.
 
-# How to use
-
 
 3. Add the followings to cron@a012
 ~~~
@@ -33,3 +31,5 @@ Data files required to run MSS validation tools are prepared here.
 0 8 * * *  bash /home/w3const/mssassist/update_taxdump.sh
 0 8,10,12,14,16,18 * * * bash /home/w3const/mssassist/update_tables.sh
 ~~~
+
+# How to use
