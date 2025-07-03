@@ -10,8 +10,8 @@ Takehide Kosuge
     ~~~
     git clone https://github.com/ddbj/mssassist.git ~/mssassist
     ~~~
-    Note! Do NOT change the destition directory for installing the mssassist. When you would like to change the directory name from 'mssassist',       you should change the value of $BASE variable in each shell script.
-     ↓
+    Note! Do NOT change the destination directory for installing the mssassist. When you would like to change the directory name from 'mssassist',       you need to change the value of $BASE variable in each shell script.
+   
     ~~~
     cd ~/mssassist
     ln -s ddbj_autofix.sh ddbj_autofix
