@@ -9,10 +9,10 @@ Takehide Kosuge
     ~~~
     w3const@a012
     git clone https://github.com/ddbj/mssassist.git ~/mssassist → see NOTE!
-      Note! Do NOT change the destition name for installing the mssassist.
-      When you would like to change the directory name from 'mssassist',
-      you should change the value of $BASE variable in each shell script.
     ~~~
+    Note! Do NOT change the destition name for installing the mssassist. When you would like to change the directory name from 'mssassist',       you should change the value of $BASE variable in each shell script.
+1. Next
+
      ↓
 
 cd ~/mssassist
