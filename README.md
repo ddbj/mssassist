@@ -8,7 +8,9 @@ Takehide Kosuge
 1. Pull the repository and Create symbolic link
 ~~~
 w3const@a012
-git clone https://github.com/ddbj/mssassist.git ~/mssassist
+git clone https://github.com/ddbj/mssassist.git ~/mssassist → see NOTE!
+  Note! Do NOT change the destition name for installing the mssassist. When you would like to change the directory name from 'mssassist', you should change the variables in each shell script.
+ ↓
 cd ~/mssassist
 ln -s ddbj_autofix.sh ddbj_autofix
 ln -s ddbj_kaeru.sh ddbj_kaeru
