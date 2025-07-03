@@ -22,7 +22,7 @@ ln -s ddbj_sakura2DB.sh ddbj_sakura2DB
 ~~~
 w3const@a012:~/mssassist$ mkdir -m 775 tables
 ~~~
-Data files which are necessary for running mss validation are prepared here.
+Data files required to run MSS validation tools are prepared here.
 
 3. Add the followings to cron@a012
 ~~~
