@@ -27,8 +27,8 @@ Takehide Kosuge
 1. Put the JSON type API keyfile to write MSSworking gsheet in .key directory.
    ~~~
    mkdir -m 750 .key
-   ~~~
    And copy the ######.json file to .key/ directory, and then set the permission to 640.
+   ~~~
 1. Finally, add the followings to cron@a012.
     ~~~
     # MSS ddbj_mss_validation
