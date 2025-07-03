@@ -24,6 +24,9 @@ w3const@a012:~/mssassist$ mkdir -m 775 tables
 ~~~
 Data files required to run MSS validation tools are prepared here.
 
+# How to use
+
+
 3. Add the followings to cron@a012
 ~~~
 # MSS ddbj_mss_validation
