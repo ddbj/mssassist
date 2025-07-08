@@ -47,4 +47,4 @@ Takehide Kosuge
 # How to use
 - jParser、transCheckerを使用可能な環境で実行する。
 - w3constにsshでアクセスできるようにしておく。
-- コマンド使用方法は、Confluenceの「MSS 査定; 新規登録の作業手順」ページを参照。w3constにsshで
+- コマンド使用方法は、Confluenceの「MSS 査定; 新規登録の作業手順」ページを参照。
