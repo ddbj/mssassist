@@ -1,0 +1,28 @@
+name: Build Singularity Container
+
+on:
+  push:
+    paths:
+      - 'Singularity'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container:
+      image: quay.io/singularity/singularity:v4.3.1
+      options: --privileged
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build SIF container
+        run: |
+          singularity build sing-mssassist.sif Singularity
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sif-container
+          path: sing-mssassist.sif
