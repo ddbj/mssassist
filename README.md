@@ -34,13 +34,19 @@ I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them her
     0 8 * * *  bash /home/w3const/mssassist/update_taxdump.sh
     0,10,20,30,40,50 8-19 * * * bash /home/w3const/mssassist/update_tables.sh
     ~~~
-1. Prepare the singularity sif container required for running R/Python scripts stored in step#/ directories.
+1. Prepare the singularity sif container required for running R/Python scripts stored in step#/ directories. 
+
+   1. Method A.
+      The "mssassist" repository has auto-workflow for building sif file when Singularity denifion is updated.  
+      Please access [github action](https://github.com/ddbj/mssassist/actions) and click the workflow name to find the "sif-container" from artifacts section. Click it to download and unzip it, then you will find "sing-mssassist.sif". Upload it to /home/w3const/mssassist directory.
+
+   1. Method B.  
+   Login to appropriate local server (e.g. ddbjs1) where users can build singularity containers.
    ~~~
-   # Login to ddbjs1 workstation or anohter appropriate server where users can build singularity containers.
    # Execute the following command.
    sudo singularity build sing-mssassist.sif ./Singularity
    
-   # Upload the sing-mssassist.sif to /home/w3const/mssassist directory 
+   # Then upload the sing-mssassist.sif to /home/w3const/mssassist directory 
    ~~~
 
 # How to use
