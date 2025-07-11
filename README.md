@@ -1,7 +1,7 @@
 # mssassist
 Validation, correction, and data registration scripts to assist MSS work
 
-I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them here. You can see the overview of the tools [from here](https://github.com/ddbj/ddbj_curator_assistant/blob/main/README.md#mass-dataset-documentation).
+I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them here. You can see the [overview of the tools from here](https://github.com/ddbj/ddbj_curator_assistant/blob/main/README.md#mass-dataset-documentation).
 
 # Installation
 1. Ssh login to a012 node as w3const user.
