@@ -50,5 +50,6 @@ I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them her
 
 # Links
 - [移行のためのための解析](https://docs.google.com/document/d/1qdvaYgYwO0oA49H1lJf_P16XcGtYWAWD7XbIltqimm8/edit?pli=1&tab=t.0#heading=h.bbg6c1jm8mfl)
-- [Googleを見る][Google]
+
+[Googleを見る][Google]
 [Google]: http://www.yahoo.co.jp
