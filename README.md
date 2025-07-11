@@ -47,3 +47,6 @@ I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them her
 - jParser、transCheckerを使用可能な環境で実行する。
 - w3constにsshでアクセスできるようにしておく。
 - コマンド使用方法は、Confluenceの「MSS 査定; 新規登録の作業手順」ページを参照。
+
+# Links
+- [移行のためのための解析](https://docs.google.com/document/d/1qdvaYgYwO0oA49H1lJf_P16XcGtYWAWD7XbIltqimm8/edit?pli=1&tab=t.0#heading=h.bbg6c1jm8mfl)
