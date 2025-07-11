@@ -9,7 +9,7 @@ I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them her
     ~~~
     git clone https://github.com/ddbj/mssassist.git ~/mssassist
     ~~~
-    Note! Do NOT change the destination directory for installing the mssassist. When you would like to change the directory name from 'mssassist',       you need to change the value of $BASE variable in each shell script.
+    Note! Do NOT change the destination directory for installing the mssassist. When you would like to change the directory name from 'mssassist', you must change the value of $BASE variable in each shell script.
 1. Prepare the symbolic link in the directory.
     ~~~
     cd ~/mssassist
@@ -39,16 +39,19 @@ I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them her
 
    1. Method A.  
       The "mssassist" repository has auto-workflow for building sif file when Singularity denifion is updated.  
-      Please access [github action](https://github.com/ddbj/mssassist/actions) and click the workflow name to find the "sif-container" from artifacts section. Click it to download and unzip it, then you will find "sing-mssassist.sif". Upload it to /home/w3const/mssassist directory.
+      Please [access github action](https://github.com/ddbj/mssassist/actions) and click the workflow name to find the "sif-container" from artifacts section. Click it to download and unzip it, then you will find "sing-mssassist.sif". Upload it to /home/w3const/mssassist directory.
 
    1. Method B.  
-   Login to appropriate local server (e.g. ddbjs1) where users can build singularity containers.
-   ~~~
-   # Execute the following command.
-   sudo singularity build sing-mssassist.sif ./Singularity
-   
-   # Then upload the sing-mssassist.sif to /home/w3const/mssassist directory 
-   ~~~
+      Login to appropriate local server (e.g. ddbjs1) where users can build singularity containers.
+      ~~~
+      # Execute the following command.
+      cd <working directory>
+      git clone https://github.com/ddbj/mssassist.git
+      cd mssassist
+      sudo singularity build sing-mssassist.sif ./Singularity
+       
+      # Then upload the sing-mssassist.sif to /home/w3const/mssassist directory 
+      ~~~
 
 # How to use
 - jParser、transCheckerを使用可能な環境で実行する。
