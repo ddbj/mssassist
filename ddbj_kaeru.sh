@@ -51,5 +51,5 @@ chmod -f 664 temp_py/* temp_svp/filetype.tsv *.ann *.fasta
 cd ../..
 mv $mass_id DONE/
 echo "workdir was moved to DONE"
-scp -i ~/.ssh/w3const/id_ed25519 ~/.ssh/w3const/disable-upload w3const@gwb.ddbj.nig.ac.jp:/home/w3const/submissions/production/$mass_id/disable-upload
+scp -i ~/.ssh/w3const/id_ed25519 ~/.ssh/w3const/disable-upload w3const@a012:/home/w3const/submissions/production/$mass_id/disable-upload
 echo "File disable-upload was added to /home/w3const/submissions/production/"$mass_id
