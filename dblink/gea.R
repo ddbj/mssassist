@@ -1,0 +1,8 @@
+library(data.table)
+gea <- fread("gea_submission_id.csv", header = FALSE, sep = ",")
+colnames(gea) <- c("gea", "submission_id", "status")
+bp <- fread("bp_submission_id.csv", header = FALSE, sep = ",")
+colnames(bp) <- c("bp", "submission_id")
+tb <- merge(gea, bp, by = "submission_id", all.x = TRUE)
+tb <- subset(tb, select = -c(submission_id))
+fwrite(tb, "../../dblink_ddbj_standby/gea/gea_dblink.csv", row.names = FALSE, col.names = FALSE, quote = FALSE, sep = ",", na = "NA")
