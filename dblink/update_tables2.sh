@@ -3,8 +3,9 @@
 # dblink_ddbj
 ############################################################################
 # Developed by Andrea Ghelfi 
-# Updated by Andrea Ghelfi 2025.4.4 (2025 new supercomputer settings)
-# This script update database required by ddbj_mss_validation and ddbj_autofix.
+# 2025.4.4 Updated by Andrea Ghelfi (2025 new supercomputer settings)
+# 2025.10.24 Updated not to import from UMSS data tables (umss is discontinued,
+# https://ddbj-dev.atlassian.net/browse/DB-1508).
 ############################################################################
 
 # dir="/home/andrea/projects/dblink_ddbj/dblink_ddbj_devel/"
@@ -109,9 +110,9 @@ if [ -f test_at101.txt ]; then
         # Table to correlate current to obsolete; attention periodically check if there are any Prefix T* or I* in this list
         psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT DISTINCT acc.ac_id, SUBSTRING(acc.accession, 1, 6) AS prefix, df.status AS df_status FROM accession AS acc LEFT OUTER JOIN manager AS man ON(man.ac_id=acc.ac_id) LEFT OUTER JOIN dataflow AS df ON (acc.ac_id=df.ac_id) WHERE (df.status = 1049 OR df.status = 1052) AND (acc.accession LIKE 'T%' OR acc.accession LIKE 'I%') UNION SELECT acc.ac_id, translate(acc.accession,' ',''), df.status AS df_status FROM accession AS acc LEFT OUTER JOIN manager AS man ON(man.ac_id=acc.ac_id) LEFT OUTER JOIN dataflow AS df ON (acc.ac_id=df.ac_id) WHERE (df.status = 1049 OR df.status = 1052) AND NOT (acc.accession LIKE 'T%' OR acc.accession LIKE 'I%') ;" > temp/at101_rel2nd_accession.txt 
         # pid_rel101=$! 
-        # at101 umss
-        psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT ut_id,prefix,set_version,ann_val_common FROM umss_ann_common ;" > temp/at101_umss_dblink_taxid.txt
-        psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT DISTINCT prefix,set_version,status,accept_date FROM umss_ann_entry ;" > temp/at101_umss_dblink_status.txt
+        # at101 umss, discontinued since 2025.10
+        # psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT ut_id,prefix,set_version,ann_val_common FROM umss_ann_common ;" > temp/at101_umss_dblink_taxid.txt
+        # psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT DISTINCT prefix,set_version,status,accept_date FROM umss_ann_entry ;" > temp/at101_umss_dblink_status.txt
     else
         log "Can't connect with e-actual."
     fi
@@ -135,9 +136,9 @@ if [ -f test_at103.txt ]; then
         # pid_at103b=$!
         psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT translate(acc.accession,' ',''),project.project_id,source.ut_id AS tax_id, man.status, DATE(man.accept_date) AS accept_date FROM accession AS acc JOIN link_pr_ac USING(ac_id) JOIN project ON(project.pr_id=link_pr_ac.pr_id) JOIN source ON(source.ac_id=acc.ac_id) JOIN manager AS man ON(man.ac_id=acc.ac_id) WHERE project.project_id LIKE 'PRJD%' AND NOT (acc.accession LIKE 'B%' OR acc.accession LIKE 'E%' OR acc.accession LIKE 'Y%') ; " | awk '{print $0",1"}' > temp/at103_bioproject_prefix_other_accept_date.txt
         # pid_at103=$!
-        # at103 umss
-        psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT ut_id,prefix,set_version,ann_val_common FROM umss_ann_common ;" > temp/at103_umss_dblink_taxid.txt
-        psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT DISTINCT prefix,set_version,status,accept_date FROM umss_ann_entry ;" > temp/at103_umss_dblink_status.txt
+        # at103 umss, discontinued since 2025.10
+        # psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT ut_id,prefix,set_version,ann_val_common FROM umss_ann_common ;" > temp/at103_umss_dblink_taxid.txt
+        # psql -h $HOST -p $PGPORT -d $PGDATABASE -U ${PG_USER2} -t -A -F"," -c "SELECT DISTINCT prefix,set_version,status,accept_date FROM umss_ann_entry ;" > temp/at103_umss_dblink_status.txt
     else
         log "Can't connect with w-actual."
     fi
@@ -153,12 +154,12 @@ if [[ ${len_test_at101} -eq 1 && ${len_test_at102} -eq 1 && ${len_test_at103} -e
     cat temp/at103_bioproject_*accept_date.txt | awk -v OFS="," '{print "w-actual",$0}' > bp_w_actual.txt
     cat temp/at102_bioproject_*accept_date.txt | awk -v OFS="," '{print "g-actual",$0}' > bp_g_actual.txt
     cat temp/at101_bioproject_*accept_date.txt | awk -v OFS="," '{print "e-actual",$0}' > bp_e_actual.txt
-    # umss
-    awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "project") {print accession,version, $5}}' temp/at103_umss_dblink_taxid.txt | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6,$1}' | awk '{sub(",","");print "umss-w," $0}' | awk -F"," -v OFS="," '{ if ($4=="") print $0"0" ; else print $0}' > temp/at103_umss_dblink_taxid_clean.txt
-    awk '{gsub(" ",""); sub(",",""); print $0}' temp/at103_umss_dblink_status.txt > temp/at103_umss_dblink_status_clean.txt
-    awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "project") {print accession,version, $5}}' temp/at101_umss_dblink_taxid.txt  | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6,$1}' | awk '{sub(",","");print "umss-e," $0}' | awk -F"," -v OFS="," '{ if ($4=="") print $0"0" ; else print $0}' > temp/at101_umss_dblink_taxid_clean.txt
-    awk '{gsub(" ",""); sub(",",""); print $0}' temp/at101_umss_dblink_status.txt > temp/at101_umss_dblink_status_clean.txt
-    Rscript ${scripts}edit_umss.R || { log "R script edit failed"; exit 1; }
+    # umss, discontinued since 2025.10
+    # awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "project") {print accession,version, $5}}' temp/at103_umss_dblink_taxid.txt | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6,$1}' | awk '{sub(",","");print "umss-w," $0}' | awk -F"," -v OFS="," '{ if ($4=="") print $0"0" ; else print $0}' > temp/at103_umss_dblink_taxid_clean.txt
+    # awk '{gsub(" ",""); sub(",",""); print $0}' temp/at103_umss_dblink_status.txt > temp/at103_umss_dblink_status_clean.txt
+    # awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "project") {print accession,version, $5}}' temp/at101_umss_dblink_taxid.txt  | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6,$1}' | awk '{sub(",","");print "umss-e," $0}' | awk -F"," -v OFS="," '{ if ($4=="") print $0"0" ; else print $0}' > temp/at101_umss_dblink_taxid_clean.txt
+    # awk '{gsub(" ",""); sub(",",""); print $0}' temp/at101_umss_dblink_status.txt > temp/at101_umss_dblink_status_clean.txt
+    # Rscript ${scripts}edit_umss.R || { log "R script edit failed"; exit 1; }
     Rscript ${scripts}filter_has2nd_accession.R || { log "R script filter failed"; exit 1; }
     cat bp_*_actual.txt > ../../dblink_ddbj_standby/tsunami/bp_actual_taxon.csv
     # Add BioSample and DRR tables
@@ -229,12 +230,12 @@ if [[ ${len_test_at101} -eq 1 && ${len_test_at102} -eq 1 && ${len_test_at103} -e
     cat temp/at103_drr_prefix_*.txt > drr_w_actual.txt
     cat temp/at102_drr_prefix*.txt > drr_g_actual.txt
     cat temp/at101_drr_prefix*.txt > drr_e_actual.txt
-    # umss biosample
-    awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "biosample") {print accession,version, $5}}' temp/at103_umss_dblink_taxid.txt | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6}' | awk '{sub(",","");print $0}' > biosample_umssw_actual.txt
-    awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "biosample") {print accession,version, $5}}' temp/at101_umss_dblink_taxid.txt  | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6}' | awk '{sub(",","");print $0}' > biosample_umsse_actual.txt
-    # umss sra
-    awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "sequence read archive") {print accession,version, $5}}' temp/at103_umss_dblink_taxid.txt | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6}' | awk '{sub(",","");print $0}' > drr_umssw_actual.txt
-    awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "sequence read archive") {print accession,version, $5}}' temp/at101_umss_dblink_taxid.txt  | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6}' | awk '{sub(",","");print $0}' > drr_umsse_actual.txt
+    # umss biosample, discontinued since 2025.10
+    # awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "biosample") {print accession,version, $5}}' temp/at103_umss_dblink_taxid.txt | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6}' | awk '{sub(",","");print $0}' > biosample_umssw_actual.txt
+    # awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "biosample") {print accession,version, $5}}' temp/at101_umss_dblink_taxid.txt  | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6}' | awk '{sub(",","");print $0}' > biosample_umsse_actual.txt
+    # umss sra, discontinued since 2025.10
+    # awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "sequence read archive") {print accession,version, $5}}' temp/at103_umss_dblink_taxid.txt | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6}' | awk '{sub(",","");print $0}' > drr_umssw_actual.txt
+    # awk -F"\t" -v OFS="," '{if($1 ~ "COMMON"){accession = $1; version=$2}; if($4 == "sequence read archive") {print accession,version, $5}}' temp/at101_umss_dblink_taxid.txt  | awk -F"," -v OFS="," '{gsub(" ","");print $2,$3,$6}' | awk '{sub(",","");print $0}' > drr_umsse_actual.txt
     #
     cat biosample_*_actual.txt > ../../dblink_ddbj_standby/tsunami/biosample_actual.csv
     cat drr_*_actual.txt > ../../dblink_ddbj_standby/tsunami/drr_actual.csv
