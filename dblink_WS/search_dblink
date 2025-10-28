@@ -1,0 +1,78 @@
+#!/bin/bash
+# This script finds out related IDs such as bioproject, biosample, and DRR from input_file.txt
+# usage: https://ddbj-dev.atlassian.net/wiki/spaces/curators/pages/2463432744/DBLINK_DDBJ#DBLINK_DDBJ
+# This script is originally 'run_dblink_ddbj_v2.0.sh' and renamed to 'search_dblink'
+
+echo "Searching on dblink_ddbj, please wait ..."
+db="dblink_ddbj_devel"
+host="127.0.0.1"
+port="5432"
+user="const"
+# db="dblink_ddbj_standby"
+export PGPASSWORD=$(cat /home/systool/DBLINK_DDBJ/pgpass-dblink_ddbj_devel)
+
+rm -rf out_dblink_ddbj/ temp_dblink_ddbj/
+mkdir -p temp_dblink_ddbj
+mkdir -p out_dblink_ddbj
+awk NF input_file.txt | egrep "PRJ" > temp_dblink_ddbj/input_bioproject.txt;
+awk NF input_file.txt | egrep "SAM" > temp_dblink_ddbj/input_biosample.txt;
+awk NF input_file.txt | egrep "DRR" > temp_dblink_ddbj/input_sra.txt;
+awk NF input_file.txt | egrep "MTB" > temp_dblink_ddbj/input_mtb.txt;
+awk NF input_file.txt | egrep "GEAD" > temp_dblink_ddbj/input_gea.txt;
+awk NF input_file.txt | egrep "DRX" > temp_dblink_ddbj/input_drx.txt;
+awk NF input_file.txt | egrep -v "PRJD" | egrep -v "SAMD" | egrep -v "DRR" | egrep -v "MTB" | egrep -v "GEAD" | egrep -v "DRX" > temp_dblink_ddbj/input_prefix.txt;
+
+if test -f temp_dblink_ddbj/input_bioproject.txt; then
+  len_input_bp=` wc -l temp_dblink_ddbj/input_bioproject.txt | cut -f1 -d" " `
+  if [[ ${len_input_bp} -gt 0 ]]; then
+    awk NF temp_dblink_ddbj/input_bioproject.txt | awk '{printf "\047" $1 "\047,"}' > temp_dblink_ddbj/temp_qbp.txt
+    qbp=` rev temp_dblink_ddbj/temp_qbp.txt | cut -c2- | rev`
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c "SELECT bp.accession,bp.bioproject,bs.biosample,bp.db_name,bp.taxon,bp.status,bp.count FROM trad_bioproject bp FULL OUTER JOIN trad_biosample bs ON(bp.accession=bs.accession) WHERE bp.bioproject IN (${qbp}) UNION SELECT bp.accession,bp.bioproject,sra.drr,bp.db_name,bp.taxon,bp.status,bp.count FROM trad_bioproject bp JOIN trad_sra sra ON(bp.accession = sra.accession) WHERE bp.bioproject IN (${qbp}) ORDER BY accession,bioproject,biosample,db_name,taxon ASC ;" > temp_dblink_ddbj/trad_bioproject2dblink.csv ;
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c "SELECT trace_bs.submitter AS bs_submitter,trace_bs.biosample,trace_bs.status AS bs_status, trace_bs.taxon, trace_bs.locus_tag AS bs_locus_tag, trace_bs.bioproject, trace_bp.submitter AS bp_submitter, trace_bp.status AS bp_status, trace_bp.project_type, trace_bp.locus_tag AS bp_locus_tag, trace_drr.drr FROM trace_biosample trace_bs FULL OUTER JOIN trace_bioproject trace_bp ON(trace_bp.bioproject=trace_bs.bioproject) FULL OUTER JOIN trace_drr ON(trace_drr.biosample=trace_bs.biosample) WHERE trace_bs.bioproject IN (${qbp}) ORDER BY bioproject,biosample,bs_submitter,taxon ASC;" > temp_dblink_ddbj/trace_bioproject2dblink.csv ;
+  fi
+fi
+if test -f temp_dblink_ddbj/input_biosample.txt; then
+  len_input_bs=` wc -l temp_dblink_ddbj/input_biosample.txt | cut -f1 -d" " `
+  if [[ ${len_input_bs} -gt 0 ]]; then
+    awk NF temp_dblink_ddbj/input_biosample.txt | awk '{printf "\047" $1 "\047,"}' > temp_dblink_ddbj/temp_qbs.txt
+    qbs=` rev temp_dblink_ddbj/temp_qbs.txt | cut -c2- | rev`
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c "SELECT bs.accession,bp.bioproject,bs.biosample,bp.db_name,bp.taxon,bp.status,bp.count FROM trad_bioproject bp JOIN trad_biosample bs ON(bp.accession=bs.accession) WHERE bs.biosample IN (${qbs}) UNION SELECT bs.accession,bp.bioproject,sra.drr,bp.db_name,bp.taxon,bp.status,bp.count FROM trad_bioproject bp JOIN trad_biosample bs ON(bp.accession=bs.accession) JOIN trad_sra sra ON(bs.accession = sra.accession) WHERE bs.biosample IN (${qbs}) ORDER BY accession,bioproject,biosample,db_name,taxon ASC ;" > temp_dblink_ddbj/trad_biosample2dblink.csv ;
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c " SELECT trace_bs.submitter AS bs_submitter,trace_bs.biosample,trace_bs.status AS bs_status, trace_bs.taxon, trace_bs.locus_tag AS bs_locus_tag, trace_bs.bioproject, trace_bp.submitter AS bp_submitter, trace_bp.status AS bp_status, trace_bp.project_type, trace_bp.locus_tag AS bp_locus_tag, trace_drr.drr FROM trace_biosample trace_bs FULL OUTER JOIN trace_bioproject trace_bp ON(trace_bp.bioproject=trace_bs.bioproject) FULL OUTER JOIN trace_drr ON(trace_drr.biosample=trace_bs.biosample) WHERE trace_bs.biosample IN (${qbs}) ORDER BY bioproject,biosample,bs_submitter,taxon ASC; " > temp_dblink_ddbj/trace_biosample2dblink.csv ;
+  fi
+fi
+# next version: add submitter and status to trace_drr table
+if test -f temp_dblink_ddbj/input_sra.txt; then
+  len_input_sra=` wc -l temp_dblink_ddbj/input_sra.txt | cut -f1 -d" " `
+  if [[ ${len_input_sra} -gt 0 ]]; then
+    awk NF temp_dblink_ddbj/input_sra.txt | awk '{printf "\047" $1 "\047,"}' > temp_dblink_ddbj/temp_qsra.txt
+    qsra=` rev temp_dblink_ddbj/temp_qsra.txt | cut -c2- | rev`
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c " SELECT bp.accession,bp.bioproject,sra.drr,bp.db_name,bp.taxon,bp.status,bp.count FROM trad_sra sra JOIN trad_bioproject bp ON(bp.accession = sra.accession) WHERE sra.drr IN (${qsra}) UNION SELECT bs.accession,bp.bioproject,bs.biosample,bp.db_name,bp.taxon,bp.status,bp.count FROM trad_sra sra JOIN trad_biosample bs ON(bs.accession=sra.accession) JOIN trad_bioproject bp ON(bp.accession = sra.accession) WHERE sra.drr IN (${qsra}) ORDER BY accession,bioproject,drr,db_name,taxon ASC ;" > temp_dblink_ddbj/trad_drr2dblink.csv ;
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c " SELECT trace_bs.submitter AS bs_submitter,trace_bs.biosample,trace_bs.status AS bs_status, trace_bs.taxon, trace_bs.locus_tag AS bs_locus_tag, trace_bs.bioproject, trace_bp.submitter AS bp_submitter, trace_bp.status AS bp_status, trace_bp.project_type, trace_bp.locus_tag AS bp_locus_tag, trace_drr.drr FROM trace_biosample trace_bs FULL OUTER JOIN trace_bioproject trace_bp ON(trace_bp.bioproject=trace_bs.bioproject) FULL OUTER JOIN trace_drr ON(trace_drr.biosample=trace_bs.biosample) WHERE trace_drr.drr IN (${qsra}) ORDER BY bioproject,biosample,drr ASC ;"  > temp_dblink_ddbj/trace_drr2dblink.csv ;
+  fi
+fi
+if test -f temp_dblink_ddbj/input_prefix.txt; then
+  len_input_prefix=` wc -l temp_dblink_ddbj/input_prefix.txt | cut -f1 -d" " `
+  if [[ ${len_input_prefix} -gt 0 ]]; then
+    awk NF temp_dblink_ddbj/input_prefix.txt | awk '{printf "\047" $1 "\047,"}' > temp_dblink_ddbj/temp_qprefix.txt
+    qprefix=` rev temp_dblink_ddbj/temp_qprefix.txt | cut -c2- | rev`
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c " SELECT DISTINCT bp.accession,bp.bioproject,bs.biosample,bp.db_name,bp.taxon,bp. status,bp.count FROM trad_bioproject bp FULL OUTER JOIN trad_biosample bs ON(bp.accession=bs.accession) WHERE bp.accession IN (${qprefix}) UNION SELECT bp.accession,bp.bioproject,sra.drr,bp.db_name,bp.taxon,bp.status,bp.count FROM trad_biosample bs FULL OUTER JOIN trad_bioproject bp ON(bp.accession=bs.accession) JOIN trad_sra sra ON(bs.accession = sra.accession) WHERE bs.accession IN (${qprefix}) ORDER BY accession,bioproject,biosample,db_name,taxon ASC ;"  > temp_dblink_ddbj/trad_accession2dblink.csv ;
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c "SELECT accession,accession2 FROM rel_pri2sec WHERE accession IN (${qprefix}) OR accession2 IN (${qprefix}) ;" > temp_dblink_ddbj/has_sec_accession.csv;
+  fi
+fi
+if test -f temp_dblink_ddbj/input_mtb.txt; then
+  len_input_mtb=` wc -l temp_dblink_ddbj/input_mtb.txt | cut -f1 -d" " `
+  if [[ ${len_input_mtb} -gt 0 ]]; then
+    awk NF temp_dblink_ddbj/input_mtb.txt | awk '{printf "\047" $1 "\047,"}' > temp_dblink_ddbj/temp_qmtb.txt
+    qmtb=` rev temp_dblink_ddbj/temp_qmtb.txt | cut -c2- | rev`
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c "SELECT mtb_id,mtb.bioproject,mtb.biosample,mtb.status AS mtb_status, tbs.taxon, tbp.submitter AS trace_bp_submitter,tbp.status AS trace_bp_status,tbp.project_type, tbs.submitter AS trace_bs_submitter, tbs.status AS trace_bs_status, tbs.locus_tag, drr.drr FROM metabobank_dblink mtb FULL OUTER JOIN trace_bioproject tbp ON(tbp.bioproject=mtb.bioproject) FULL OUTER JOIN trace_biosample tbs ON(tbs.biosample=mtb.biosample) FULL OUTER JOIN trace_drr drr ON(drr.biosample=mtb.biosample) WHERE mtb.mtb_id IN (${qmtb}) ;" > temp_dblink_ddbj/mtb2dblink.csv
+  fi
+fi
+if test -f temp_dblink_ddbj/input_gea.txt; then
+  len_input_gea=` wc -l temp_dblink_ddbj/input_gea.txt | cut -f1 -d" " `
+  if [[ ${len_input_gea} -gt 0 ]]; then
+    awk NF temp_dblink_ddbj/input_gea.txt | awk '{printf "\047" $1 "\047,"}' > temp_dblink_ddbj/temp_qgea.txt
+    qgea=` rev temp_dblink_ddbj/temp_qgea.txt | cut -c2- | rev`
+    psql -h ${host} -p ${port} -d ${db} -U ${user} -t -A -F"," -c "SELECT gea,gea.bioproject,tbs.biosample, gea.status AS gea_status, tbs.taxon AS trace_taxon, trbs.accession AS seq_accession, tbs.submitter AS trace_bs_submitter, tbs.status AS trace_bs_status, tbs.locus_tag AS bs_locus_tag, drr.drr AS trace_drr FROM gea_dblink gea FULL OUTER JOIN trace_biosample tbs ON(tbs.bioproject=gea.bioproject) FULL OUTER JOIN trace_drr drr ON(drr.bioproject=gea.bioproject) FULL OUTER JOIN trad_bioproject trbs ON(trbs.bioproject=gea.bioproject) WHERE gea.gea IN (${qgea}) ;" > temp_dblink_ddbj/gea2dblink.csv ;
+  fi
+fi
+Rscript /home/andreaghelfi/scripts/dblink_ddbj/run_dblink_ddbj_format_html_v1.1.R >temp_dblink_ddbj/run_dblink_ddbj.log 2> temp_dblink_ddbj/run_dblink_ddbj.err
