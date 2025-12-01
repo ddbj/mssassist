@@ -9,7 +9,7 @@ log "Update tables started"
 
 # Import dblink_ddbj_standby
 cd /home/systool/DBLINK_DDBJ
-rsync -vrlt --delete sc-tkosuge:/home/w3const/work-kosuge/dblink/dblink_ddbj_standby ./
+rsync -vrlt --delete sc-tkosuge:/home/w3const/dblink-ddbj/dblink_ddbj_standby ./
 
 db="dblink_ddbj_devel"
 current_date=$(date +%Y-%m-%d)
