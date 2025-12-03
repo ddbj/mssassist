@@ -58,6 +58,21 @@ I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them her
 - w3constにsshでアクセスできるようにしておく。
 - コマンド使用方法は、Confluenceの「MSS 査定; 新規登録の作業手順」ページを参照。
 
+# Memo
+The Rscript requires the following libraries. All libraries are included in sing-mssassist.sif.
+~~~
+data.table
+doParallel
+dplyr
+fedmatch
+foreach
+gt
+stringr
+tibble
+tidyr
+tidyverse
+~~~
+
 # Links
 - [移行のために行った解析結果(Ctrl+Click to open in new tab)][mss validation tools解析]
 
