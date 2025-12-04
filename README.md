@@ -59,7 +59,7 @@ I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them her
 - コマンド使用方法は、Confluenceの「MSS 査定; 新規登録の作業手順」ページを参照。
 
 # Memo
-The Rscript requires the following libraries. All libraries are included in sing-mssassist.sif.
+The Rscript requires the following packages that are included in sing-mssassist.sif.
 ~~~
 data.table
 doParallel
@@ -72,6 +72,28 @@ tibble
 tidyr
 tidyverse
 ~~~
+
+Use the following definition to build singularity image that contains the packages listed above.
+~~~
+Bootstrap: docker
+From: r-base:4.5.2
+Stage: build
+
+%post
+    apt update
+    Rscript -e 'install.packages(rownames(installed.packages(priority="recommended")), repos="https://cloud.r-project.org")'
+    Rscript -e 'install.packages("fedmatch", repos="https://cloud.r-project.org")'
+    Rscript -e 'install.packages("tidyr", repos="https://cloud.r-project.org")'
+    Rscript -e 'install.packages("doParallel", repos="https://cloud.r-project.org")'
+    Rscript -e 'install.packages(c("colorspace", "fansi", "munsell"), repos="https://cloud.r-project.org")'
+    # gt
+    apt -y install libxml2-dev libcurl4-openssl-dev libv8-dev
+    Rscript -e 'install.packages("gt", repos="https://cloud.r-project.org")'
+    # tidyverse
+    apt -y install libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev
+    Rscript -e 'install.packages("tidyverse", repos="https://cloud.r-project.org")'
+~~~
+
 
 # Links
 - [移行のために行った解析結果(Ctrl+Click to open in new tab)][mss validation tools解析]
