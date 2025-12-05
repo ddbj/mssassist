@@ -73,8 +73,10 @@ tidyr
 tidyverse
 ~~~
 
-Use the following definition to build singularity image that contains the packages listed above.
-~~~
+Use the following definition to build image that contains the packages listed above.
+
+For singularity
+~~~shell
 Bootstrap: docker
 From: r-base:4.5.2
 Stage: build
@@ -94,6 +96,52 @@ Stage: build
     Rscript -e 'install.packages("tidyverse", repos="https://cloud.r-project.org")'
 ~~~
 
+For podman
+* Start container ... podman-compose -f compose.yaml up -d
+* Stop container  ... podman-compose -f compose.yaml down
+
+Dockerfile
+~~~Dockerfile 
+FROM docker.io/r-base:4.5.2
+
+# required lib
+RUN apt-get update && apt-get install -y libxml2-dev \
+    libcurl4-openssl-dev \
+    libv8-dev \
+    libfontconfig1-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev \
+    libwebp-dev
+
+# R packages
+RUN Rscript -e 'install.packages(rownames(installed.packages(priority="recommended")), repos="https://cloud.r-project.
+org")' \
+    && Rscript -e 'install.packages("fedmatch", repos="https://cloud.r-project.org")' \
+    && Rscript -e 'install.packages("tidyr", repos="https://cloud.r-project.org")' \
+    && Rscript -e 'install.packages("doParallel", repos="https://cloud.r-project.org")' \
+    && Rscript -e 'install.packages(c("colorspace", "fansi", "munsell"), repos="https://cloud.r-project.org")' \
+    && Rscript -e 'install.packages("gt", repos="https://cloud.r-project.org")' \
+    && Rscript -e 'install.packages("tidyverse", repos="https://cloud.r-project.org")'
+~~~
+
+compose.yaml
+~~~shell
+services:
+  r-mss-env:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: r-base:4.5.2-msstools
+    container_name: r-mss-env
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/mnt
+~~~
 
 # Links
 - [移行のために行った解析結果(Ctrl+Click to open in new tab)][mss validation tools解析]
