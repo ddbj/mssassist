@@ -52,6 +52,13 @@ I (tkosuge) have taken Andrea-san mss fix tools, and will have migrated them her
        
       # Then upload the sing-mssassist.sif to /home/w3const/mssassist directory 
       ~~~
+1. Finally, you must prepare the private key file in your ~/.ssh/w3const/ to access the directories in 'w3const'.
+   ~~~
+   ssh login as your account
+   cd ~
+   ~/.ssh/w3const/id_ed25519  <--Do not change the name.
+   ~~~ 
+
 
 # How to use
 - jParser、transCheckerを使用可能な環境で実行する。
