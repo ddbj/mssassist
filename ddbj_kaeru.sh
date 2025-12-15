@@ -11,6 +11,7 @@
 BASE="/home/w3const/mssassist"
 SIMG="sing-mssassist.sif"
 BD="$PWD:/workspace,${BASE}/.key:/tmp,${BASE}/step4:/src"
+ACC_STORE="/home/w3const/work-kosuge/ACCNUM"
 # 
 rm -rf temp_py
 mkdir -p temp_py temp_svp
@@ -48,6 +49,12 @@ echo "Data was uploaded to MSS working list"
 chgrp -Rf mass-adm temp_py/
 chmod -Rf 775 temp_py/
 chmod -f 664 temp_py/* temp_svp/filetype.tsv *.ann *.fasta
+# Copy accession number files to NSUB directory. 
+[ -d ${ACC_STORE}/${mass_id} ] || ssh -i ~/.ssh/w3const/id_ed25519 w3const@a012 \
+mkdir -p ${ACC_STORE}/${mass_id}
+echo -e "cd ${ACC_STORE}/${mass_id}\nmput sakura_actual/acclist_dir/*.acclist.txt\nbye\n" | \
+sftp -b - -i ~/.ssh/w3const/id_ed25519 w3const@a012
+# 
 cd ../..
 mv $mass_id DONE/
 echo "workdir was moved to DONE"
