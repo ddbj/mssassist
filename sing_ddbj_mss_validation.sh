@@ -24,19 +24,11 @@ for v in ${ANNS}; do
       seqfiles=($(ls "${basename}"{.fasta,.seq.fa,.fa,.fna,.seq} 2>/dev/null))
       if [ ${#seqfiles[@]} -eq 1 ]; then
         seqf=${seqfiles[0]}
-        if [ "$extann" != ".ann" ] && [ -e ${basename}.ann ]; then
-          echo "Fatal: ${basename}.ann already exists, stop renaming and aborted." | tee -a ${LOGFILE}
-          exit 1
+        if [ "$extann" != ".ann" ]; then
+          mv -iv ${v} ${basename}.ann | tee -a ${LOGFILE}
         fi
-        if [ "${seqf#${basename}}" != ".fasta" ] && [ -e ${basename}.fasta ]; then
-          echo "Fatal: ${basename}.fasta already exists, stop renaming and aborted." | tee -a ${LOGFILE}
-          exit 1
-        fi
-        if [ "$extann" != ".ann" ] && [ ! -e ${basename}.ann ]; then
-          mv -v ${v} ${basename}.ann | tee -a ${LOGFILE}
-        fi
-        if [ "${seqf#${basename}}" != ".fasta" ] && [ ! -e ${basename}.fasta ]; then
-          mv -v ${seqf} ${basename}.fasta | tee -a ${LOGFILE}
+        if [ "${seqf#${basename}}" != ".fasta" ]; then
+          mv -iv ${seqf} ${basename}.fasta | tee -a ${LOGFILE}
         fi
         # ls ${basename}.ann ${basename}.fasta
       else
