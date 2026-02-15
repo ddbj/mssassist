@@ -36,7 +36,7 @@ for v in ${ANNS}; do
           mv -v ${v} ${basename}.ann | tee -a ${LOGFILE}
         fi
         if [ "${seqf#${basename}}" != ".fasta" ] && [ ! -e ${basename}.fasta ]; then
-          mv -iv ${seqf} ${basename}.fasta | tee -a ${LOGFILE}
+          mv -v ${seqf} ${basename}.fasta | tee -a ${LOGFILE}
         fi
         # ls ${basename}.ann ${basename}.fasta
       else
@@ -49,7 +49,12 @@ done
 echo "--------------------------------" | tee -a ${LOGFILE}
 echo "Finished successfully" | tee -a ${LOGFILE}
 echo "" | tee -a ${LOGFILE}
-read -p "Press ENTER to continue or CTRL+C to stop" yn
+read -p "Press Y/y to continue or the other keys to stop: " yn
+case ${yn} in 
+  [yY] ) echo -n '' ;;
+  * ) exit 0;; 
+esac 
+
 
 # nohup singularity run --bind .:/data,${BASE}/tables:/srv ${BASE}/ddbj_mss_validation_v2.91.sif </dev/null &>sing_ddbj_mss_validation.log &
 # sing_ddbj_mss=$!
