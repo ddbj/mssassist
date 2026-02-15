@@ -49,6 +49,7 @@ esac
 
 # Detecting lines exceeds 10,000 chars.
 cnterr=0; c=0
+echo "Checking if line exceeds 10,000 characters." | tee -a ${LOGFILE}
 for v in *.ann; do
 c=$((c+1))
 nkf -Lu --overwrite ${v}
