@@ -41,12 +41,42 @@ done
 echo "--------------------------------" | tee -a ${LOGFILE}
 echo "Finished successfully" | tee -a ${LOGFILE}
 echo "" | tee -a ${LOGFILE}
-read -p "Press Y/y to continue or the other keys to stop: " yn
+read -p "Press Y/y to continue, or any other key to stop: " yn
 case ${yn} in 
   [yY] ) echo -n '' ;;
   * ) exit 0;; 
 esac 
 
+# Detecting lines exceeds 10,000 chars.
+cnterr=0; c=0
+for v in *.ann; do
+c=$((c+1))
+nkf -Lu --overwrite ${v}
+nkf -Lu --overwrite ${v%.ann}.fasta
+chk=$(cat $v | awk 'BEGIN {line=0} {++line; if (length($0) > 10000) print line":"length($0)} END {}')
+if [ -n "$chk" ]; then
+    ERRCODE="FMT0004"
+    cnterr=$((cnterr+1))
+    if [ $cnterr -eq 1 ]; then
+        echo "# Error! The following line exceeds 10,000 characters." | tee -a ${LOGFILE}
+        printf "ERRCODE\tNO\tFILENAME\tLINE\tLENGTH\n" | tee -a ${LOGFILE}
+    fi
+    for l in ${chk}; do
+        printf "%s\t#%u\t%s\t%s\t%s\n" $ERRCODE $c $v ${l/:/ } | tee -a ${LOGFILE}
+    done
+fi
+done
+if [ $cnterr -eq 0 ]; then
+    echo "Good! No line exceeds 10,000 characters." | tee -a ${LOGFILE}
+    read -p "Press Y/y to continue, or any other key to stop: " yn
+    case ${yn} in 
+    [yY] ) echo -n '' ;;
+    * ) exit 0;; 
+    esac
+else
+    exit 1
+fi
+cnterr=0; c=0
 
 # nohup singularity run --bind .:/data,${BASE}/tables:/srv ${BASE}/ddbj_mss_validation_v2.91.sif </dev/null &>sing_ddbj_mss_validation.log &
 # sing_ddbj_mss=$!
