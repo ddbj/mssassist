@@ -82,8 +82,16 @@ cnterr=0; c=0
 echo "- Checking line in each ANN file exceeds 10,000 characters." | tee -a ${LOGFILE}
 for v in *.ann; do
 c=$((c+1))
-nkf -Lu --overwrite ${v}
-nkf -Lu --overwrite ${v%.ann}.fasta
+if grep -q $'\r' ${v}; then
+  echo "${v} contains CR, changing line break code to LF" | tee -a ${LOGFILE}
+  tr '\r' '\n' <${v} | sed '/^$/d' > ${v}.tmp && mv -f ${v}.tmp ${v}
+  # nkf -Lu --overwrite ${v}
+fi
+if grep -q $'\r' ${v%.ann}.fasta; then
+  echo "${v%.ann}.fasta contains CR, changing line break code to LF" | tee -a ${LOGFILE}
+  tr '\r' '\n' <${v%.ann}.fasta | sed '/^$/d' > ${v%.ann}.fasta.tmp && mv -f ${v%.ann}.fasta.tmp ${v%.ann}.fasta
+  # nkf -Lu --overwrite ${v%.ann}.fasta
+fi
 chk=$(cat $v | awk 'BEGIN {line=0} {++line; if (length($0) > 10000) print line":"length($0)} END {}')
 if [ -n "$chk" ]; then
   ERRCODE="FMT0005"
@@ -99,6 +107,7 @@ fi
 done
 if [ $cnterr -eq 0 ]; then
   echo "Good! No line exceeds 10,000 characters." | tee -a ${LOGFILE}
+  echo "" | tee -a ${LOGFILE}
   read -p "Press Y/y to continue, or any other key to stop: " yn
   case ${yn} in 
   [yY] ) echo -n '' ;;
