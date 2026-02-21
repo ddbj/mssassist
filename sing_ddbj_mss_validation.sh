@@ -5,9 +5,10 @@ SIMG="sing-mssassist.sif"
 BD="${PWD}:/data,${BASE}/tables:/srv,${BASE}/step1:/mnt"
 LOGFILE="sing_ddbj_mss_validation.log"
 [ -e ${LOGFILE} ] && rm -f ${LOGFILE} || touch ${LOGFILE}
+export LC_ALL=C
 
 # Substitute the file extension (.annt.tsv,.ann.txt, .seq.fa,.fa,.fna,.seq) with .ann/.fasta
-echo "Checking file extensions and the existence of corresponding files." | tee -a ${LOGFILE}
+echo "- Changing file extension and checking the existence of corresponding files." | tee -a ${LOGFILE}
 echo "#No:    Basename" | tee -a ${LOGFILE}
 ANNS=$(ls *{.ann,.annt.tsv,.ann.txt} 2>/dev/null)
 SEQS=$(ls *{.fasta,.fa,.fna,.seq} 2>/dev/null) # .fa includes .seq.fa
@@ -43,20 +44,49 @@ echo "Finished successfully" | tee -a ${LOGFILE}
 echo "" | tee -a ${LOGFILE}
 read -p "Press Y/y to continue, or any other key to stop: " yn
 case ${yn} in 
-  [yY] ) echo -n '' ;;
+  [yY] ) echo '' ;;
+  * ) exit 0;; 
+esac 
+
+# Detection of wrong file encodes
+echo "- Checking file encodes" | tee -a ${LOGFILE}
+cnterr=0
+for v in *.ann; do
+  chk1=$(file $v)
+  chk2=$(file ${v%.ann}.fasta)
+  if [[ "${chk1}" != "${v}: ASCII text"* ]]; then
+    echo "FMT0004: ${v} Not ASCII text" | tee -a ${LOGFILE}
+    cnterr=$((cnterr+1))
+  fi
+  if [[ "$chk2" != "${v%.ann}.fasta: ASCII text"* ]]; then
+    echo "FMT0004: ${v%.ann}.fasta - Not ASCII text" | tee -a ${LOGFILE}
+    cnterr=$((cnterr+1))
+  fi
+done
+if [ $cnterr -gt 0 ]; then
+  echo "Wrong file encodes detected, aborted." | tee -a ${LOGFILE}
+  exit 1
+else
+  echo "Good, All files are ASCII text." | tee -a ${LOGFILE}
+fi
+cnterr=0
+echo "" | tee -a ${LOGFILE}
+read -p "Press Y/y to continue, or any other key to stop: " yn
+case ${yn} in 
+  [yY] ) echo '' ;;
   * ) exit 0;; 
 esac 
 
 # Detecting lines exceeds 10,000 chars.
 cnterr=0; c=0
-echo "Checking if ANN file has line exceeding 10,000 characters." | tee -a ${LOGFILE}
+echo "- Checking line in each ANN file exceeds 10,000 characters." | tee -a ${LOGFILE}
 for v in *.ann; do
 c=$((c+1))
 nkf -Lu --overwrite ${v}
 nkf -Lu --overwrite ${v%.ann}.fasta
 chk=$(cat $v | awk 'BEGIN {line=0} {++line; if (length($0) > 10000) print line":"length($0)} END {}')
 if [ -n "$chk" ]; then
-    ERRCODE="FMT0004"
+    ERRCODE="FMT0005"
     cnterr=$((cnterr+1))
     if [ $cnterr -eq 1 ]; then
         echo "# Error! The following line exceeds 10,000 characters." | tee -a ${LOGFILE}
