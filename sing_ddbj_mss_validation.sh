@@ -43,7 +43,7 @@ echo "--------------------------------" | tee -a ${LOGFILE}
 echo "Finished successfully" | tee -a ${LOGFILE}
 echo "" | tee -a ${LOGFILE}
 read -p "Press Y/y to continue, or any other key to stop: " yn
-case ${yn} in 
+case ${yn} in
   [yY] ) echo '' ;;
   * ) exit 0;; 
 esac 
@@ -72,10 +72,10 @@ fi
 cnterr=0
 echo "" | tee -a ${LOGFILE}
 read -p "Press Y/y to continue, or any other key to stop: " yn
-case ${yn} in 
+case ${yn} in
   [yY] ) echo '' ;;
-  * ) exit 0;; 
-esac 
+  * ) exit 0 ;;
+esac
 
 # Detecting lines exceeds 10,000 chars.
 cnterr=0; c=0
@@ -86,26 +86,26 @@ nkf -Lu --overwrite ${v}
 nkf -Lu --overwrite ${v%.ann}.fasta
 chk=$(cat $v | awk 'BEGIN {line=0} {++line; if (length($0) > 10000) print line":"length($0)} END {}')
 if [ -n "$chk" ]; then
-    ERRCODE="FMT0005"
-    cnterr=$((cnterr+1))
-    if [ $cnterr -eq 1 ]; then
-        echo "# Error! The following line exceeds 10,000 characters." | tee -a ${LOGFILE}
-        printf "ERRCODE\tNO\tFILENAME\tLINE\tLENGTH\n" | tee -a ${LOGFILE}
-    fi
-    for l in ${chk}; do
-        printf "%s\t#%u\t%s\t%s\t%s\n" $ERRCODE $c $v ${l/:/ } | tee -a ${LOGFILE}
-    done
+  ERRCODE="FMT0005"
+  cnterr=$((cnterr+1))
+  if [ $cnterr -eq 1 ]; then
+      echo "# Error! The following line exceeds 10,000 characters." | tee -a ${LOGFILE}
+      printf "ERRCODE\tNO\tFILENAME\tLINE\tLENGTH\n" | tee -a ${LOGFILE}
+  fi
+  for l in ${chk}; do
+      printf "%s\t#%u\t%s\t%s\t%s\n" $ERRCODE $c $v ${l/:/ } | tee -a ${LOGFILE}
+  done
 fi
 done
 if [ $cnterr -eq 0 ]; then
-    echo "Good! No line exceeds 10,000 characters." | tee -a ${LOGFILE}
-    read -p "Press Y/y to continue, or any other key to stop: " yn
-    case ${yn} in 
-    [yY] ) echo -n '' ;;
-    * ) exit 0;; 
-    esac
+  echo "Good! No line exceeds 10,000 characters." | tee -a ${LOGFILE}
+  read -p "Press Y/y to continue, or any other key to stop: " yn
+  case ${yn} in 
+  [yY] ) echo -n '' ;;
+  * ) exit 0;; 
+  esac
 else
-    exit 1
+  exit 1
 fi
 cnterr=0; c=0
 
