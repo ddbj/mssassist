@@ -82,16 +82,25 @@ cnterr=0; c=0
 echo "- Checking line in each ANN file exceeds 10,000 characters." | tee -a ${LOGFILE}
 for v in *.ann; do
 c=$((c+1))
+# Change end-of-line code to LF if CR is detected
 if grep -q $'\r' ${v}; then
   echo "${v} contains CR, changing line break code to LF" | tee -a ${LOGFILE}
   tr '\r' '\n' <${v} | sed '/^$/d' > ${v}.tmp && mv -f ${v}.tmp ${v}
-  # nkf -Lu --overwrite ${v}
+  # nkf -Lu --overwrite ${v} ... Using nkf is not recommended because of slow speed against large file in size.
 fi
 if grep -q $'\r' ${v%.ann}.fasta; then
   echo "${v%.ann}.fasta contains CR, changing line break code to LF" | tee -a ${LOGFILE}
   tr '\r' '\n' <${v%.ann}.fasta | sed '/^$/d' > ${v%.ann}.fasta.tmp && mv -f ${v%.ann}.fasta.tmp ${v%.ann}.fasta
-  # nkf -Lu --overwrite ${v%.ann}.fasta
+  # nkf -Lu --overwrite ${v%.ann}.fasta ... Using nkf is not recommended because of slow speed against large file in size.
 fi
+# Add LR if end of line does not have LR
+if [ $(tail -c1 ${v} | od -An -c | sed 's/ \+//') != "\n" ]; then
+  awk 1 ${v} > ${v}.tmp && mv -f ${v}.tmp ${v}
+fi
+if [ $(tail -c1 ${v%.ann}.fasta | od -An -c | sed 's/ \+//') != "\n" ]; then
+  awk 1 ${v%.ann}.fasta > ${v%.ann}.fasta.tmp && mv -f ${v%.ann}.fasta.tmp ${v%.ann}.fasta
+fi
+# 
 chk=$(cat $v | awk 'BEGIN {line=0} {++line; if (length($0) > 10000) print line":"length($0)} END {}')
 if [ -n "$chk" ]; then
   ERRCODE="FMT0005"
